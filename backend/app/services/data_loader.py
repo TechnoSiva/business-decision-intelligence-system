@@ -29,13 +29,21 @@ class DataLoader:
             # Inspect columns for date parsing
             date_columns = []
             for col in df.columns:
-                # Try to parse as date
-                try:
-                    df[col] = pd.to_datetime(df[col])
-                    date_columns.append(col)
-                    print(f"Parsed '{col}' as date column")
-                except:
-                    pass
+                # Skip columns that are likely numerical
+                if col.lower() in ['units_sold', 'unit_price', 'revenue', 'discount_applied', 'marketing_spend', 'returned_units']:
+                    try:
+                        df[col] = pd.to_numeric(df[col], errors='coerce')
+                        print(f"Converted '{col}' to numeric")
+                    except:
+                        pass
+                else:
+                    # Try to parse as date
+                    try:
+                        df[col] = pd.to_datetime(df[col])
+                        date_columns.append(col)
+                        print(f"Parsed '{col}' as date column")
+                    except:
+                        pass
             
             # Remove nulls
             null_count = df.isnull().sum().sum()
